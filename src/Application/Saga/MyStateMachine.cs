@@ -9,7 +9,6 @@ namespace MyWebApi.Application.Saga;
 public class MyStateMachine : MassTransitStateMachine<Monitoring>
 {
     // define the state machine
-    // State data : 0 - None, 1 - Initial, 2 - Final, 3 - Submitted, 4 - Processed, 5 - MailSent
     public State Submitted { get; private set; }
     public State Processed { get; private set; }
     public State MailSent { get; private set; }
@@ -22,7 +21,9 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
     public MyStateMachine(ILogger<MyStateMachine> logger)
     {
         logger.LogInformation("MyStateMachine => Initially");
-        InstanceState(x => x.CurrentState, Submitted);
+
+        // State data : 0 - None, 1 - Initial, 2 - Final, 3 - Submitted, 4 - Processed, 5 - MailSent
+        InstanceState(x => x.CurrentState, Submitted, Processed, MailSent);
 
         Initially(
             When(OrderSubmitted)
