@@ -1,0 +1,36 @@
+{
+    "id": "49467831-5dc6-498d-840e-bf193f9b8d8b",
+    "name": "My Visual Studio extensions",
+    "description": "A collection of my Visual Studio extensions",
+    "version": "1.0",
+    "extensions": [
+        {
+            "name": "Code Cleanup On Save",
+            "vsixId": "66985471-b701-4851-a2d7-5a8bdce1e694"
+        },
+        {
+            "name": "Editor Guidelines",
+            "vsixId": "Editor_Guidelines.Microsoft Corp..123716ef-b2ed-4fab-bbcf-1d5f84856ca3"
+        },
+        {
+            "name": "File Icons",
+            "vsixId": "3a7b4930-a5fb-46ec-a9b8-9610c8f953b8"
+        },
+        {
+            "name": "Format document on Save",
+            "vsixId": "2f4fac85-be4e-4d7a-8c74-93cc4389b427"
+        },
+        {
+            "name": "Indent Guides",
+            "vsixId": "IndentGuide.SteveDower.0a67eb97-becd-451f-aa29-851d9fe5dd2b"
+        },
+        {
+            "name": "Trailing Whitespace Visualizer",
+            "vsixId": "4c1a78e6-e7b8-4aa9-8812-4836e051ff6d"
+        },
+        {
+            "name": "Visual Studio Spell Checker (VS2017 and Later)",
+            "vsixId": "43EA967E-0DE2-4136-8E52-C6DCFB5C2748"
+        }
+    ]
+}
