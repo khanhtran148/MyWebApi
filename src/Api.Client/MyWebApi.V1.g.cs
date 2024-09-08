@@ -235,7 +235,7 @@ namespace MyWebApi.API.Client.V1
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApiResponse> Languages_PublishMessageAsync(int? jobId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<ApiResponse> Languages_PublishMessageAsync(int? orderId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -251,9 +251,9 @@ namespace MyWebApi.API.Client.V1
                     // Operation Path: "api/Languages/PublishMessage"
                     urlBuilder_.Append("api/Languages/PublishMessage");
                     urlBuilder_.Append('?');
-                    if (jobId != null)
+                    if (orderId != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("jobId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(jobId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("orderId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(orderId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 

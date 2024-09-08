@@ -35,7 +35,6 @@ namespace Application.IT.Tests.Fixtures
 
             ServiceCollection.RegisterDatabase(ConfigurationRoot);
             ServiceCollection.RegisterActiveMqPublisher(ConfigurationRoot);
-            ServiceCollection.RegisterConsumer(ConfigurationRoot);
             ServiceCollection.RegisterApplicationDependencies(ConfigurationRoot);
             ServiceCollection.RegisterInfrastructureDependencies(ConfigurationRoot);
         }

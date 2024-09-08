@@ -27,6 +27,15 @@ namespace MyWebApi.Infrastructure
                 options.UseLazyLoadingProxies();
             });
 
+            services.AddDbContextPool<MonitoringDbContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("MyWeb"), op =>
+                {
+                    op.MigrationsAssembly(typeof(MonitoringDbContext).Assembly.FullName);
+                });
+                options.UseLazyLoadingProxies();
+            });
+
             // use postgres
             // services.AddDbContextPool<MyDbContext>(options =>
             // {
@@ -39,6 +48,7 @@ namespace MyWebApi.Infrastructure
 
             services.TryAddScoped<IMyDbContextProcedures, MyDbContextProcedures>();
             services.TryAddScoped<IMyDbContext, MyDbContext>();
+            services.TryAddScoped<IMonitoringDbContext, MonitoringDbContext>();
         }
     }
 }

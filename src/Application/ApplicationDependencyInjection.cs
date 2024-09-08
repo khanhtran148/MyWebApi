@@ -8,7 +8,6 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyWebApi.Application.Common;
-using MyWebApi.Application.Consumer;
 using MyWebApi.Domain.Configurations;
 
 namespace MyWebApi.Application
@@ -44,59 +43,14 @@ namespace MyWebApi.Application
             services.AddScoped<IMapper, ServiceMapper>();
         }
 
-        /// <summary>
-        /// Use for worker service only
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="configuration"></param>
-        public static void RegisterConsumer(this IServiceCollection services, IConfiguration configuration)
-        {
-            //Add masstransit
-            MessageBrokerOptions options = configuration.GetSection(MessageBrokerOptions.BindLocator).Get<MessageBrokerOptions>();
-            services.AddMassTransit(x =>
-            {
-                //x.SetKebabCaseEndpointNameFormatter();
-
-                x.AddConsumer<OnJobCreatedConsumer>();
-                // x.UsingRabbitMq((context, cfg) =>
-                // {
-                //     cfg.Host(options.Host, options.VirtualHost, config =>
-                //     {
-                //         config.Username(options.User);
-                //         config.Password(options.Password);
-                //     });
-                //
-                //     cfg.ReceiveEndpoint($"on-job-created-{nameof(OnJobCreatedConsumer)}", e =>
-                //     {
-                //         e.ConfigureConsumer<OnJobCreatedConsumer>(context);
-                //         e.Bind<OnJobCreatedConsumer>();
-                //     });
-                // });
-
-                x.UsingActiveMq((context, cfg) =>
-                {
-                    cfg.Host(options.Host, config =>
-                    {
-                        config.Username(options.User);
-                        config.Password(options.Password);
-                    });
-
-                    cfg.ReceiveEndpoint($"on-job-created-{nameof(OnJobCreatedConsumer)}", e =>
-                    {
-                        e.ConfigureConsumer<OnJobCreatedConsumer>(context);
-                        e.Bind<OnJobCreatedConsumer>();
-                    });
-                    cfg.ConfigureEndpoints(context);
-                });
-            });
-        }
-
         public static void RegisterActiveMqPublisher(this IServiceCollection services, IConfiguration configuration)
         {
             MessageBrokerOptions options = configuration.GetSection(MessageBrokerOptions.BindLocator).Get<MessageBrokerOptions>();
+
             services.AddMassTransit(x =>
             {
                 x.SetKebabCaseEndpointNameFormatter();
+
                 // use activeMQ
                 x.UsingActiveMq((context, cfg) =>
                 {

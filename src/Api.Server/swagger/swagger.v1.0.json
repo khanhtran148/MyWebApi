@@ -114,7 +114,7 @@
         "operationId": "Languages.PublishMessage",
         "parameters": [
           {
-            "name": "jobId",
+            "name": "orderId",
             "in": "query",
             "schema": {
               "type": "integer",

@@ -11,7 +11,8 @@ using MyWebApi.Api.Server.Models.Languages;
 using MyWebApi.Application.Languages.Queries;
 using MyWebApi.Domain.Common;
 using MyWebApi.Domain.Constants;
-using MyWebApi.Messages.Job;
+using MyWebApi.Domain.Saga;
+using MyWebApi.Messages.Orders;
 
 namespace MyWebApi.Api.Server.Controllers.V1
 {
@@ -56,9 +57,9 @@ namespace MyWebApi.Api.Server.Controllers.V1
 
         [HttpPost("PublishMessage", Name = MyConstants.PrefixController + nameof(PublishMessage))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> PublishMessage(int jobId, CancellationToken cancellationToken)
+        public async Task<IActionResult> PublishMessage(int orderId, CancellationToken cancellationToken)
         {
-            await _publishEndpoint.Publish<JobCreated>(new JobCreated() { JobId = jobId }, cancellationToken);
+            await _publishEndpoint.Publish<IOrderSubmitted>(new OrderSubmitted() { OrderId = orderId }, cancellationToken);
             return Ok();
         }
     }
