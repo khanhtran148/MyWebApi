@@ -73,6 +73,7 @@ namespace MyWebApi.WorkerService
                     })
                     ;
                 x.AddConsumer<OnOrderSubmittedConsumer>();
+                x.AddConsumer<OnOrderProcessedConsumer>();
                 // x.UsingRabbitMq((context, cfg) =>
                 // {
                 //     cfg.Host(options.Host, options.VirtualHost, config =>
@@ -101,6 +102,13 @@ namespace MyWebApi.WorkerService
                         e.ConfigureConsumer<OnOrderSubmittedConsumer>(context);
                         e.Bind<OnOrderSubmittedConsumer>();
                     });
+
+                    cfg.ReceiveEndpoint($"on-order-processed-{nameof(OnOrderProcessedConsumer)}", e =>
+                    {
+                        e.ConfigureConsumer<OnOrderProcessedConsumer>(context);
+                        e.Bind<OnOrderProcessedConsumer>();
+                    });
+
                     cfg.ConfigureEndpoints(context);
                 });
             });

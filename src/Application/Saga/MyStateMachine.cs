@@ -9,9 +9,10 @@ namespace MyWebApi.Application.Saga;
 public class MyStateMachine : MassTransitStateMachine<Monitoring>
 {
     // define the state machine
+    // State data : 0 - None, 1 - Initial, 2 - Final, 3 - Submitted, 4 - Processed, 5 - MailSent
     public State Submitted { get; private set; }
-    public State MailSent { get; private set; }
     public State Processed { get; private set; }
+    public State MailSent { get; private set; }
 
     // define event
     public Event<IOrderSubmitted> OrderSubmitted { get; private set; }
@@ -40,8 +41,6 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
                 {
                     context.Saga.OrderId = context.Message.OrderId;
                     context.Saga.UpdatedDate = DateTime.UtcNow;
-                    logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
-                        context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState);
                 })
                 .TransitionTo(Processed),
 
@@ -50,8 +49,6 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
                 {
                     context.Saga.OrderId = context.Message.OrderId;
                     context.Saga.UpdatedDate = DateTime.UtcNow;
-                    logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
-                        context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState);
                 })
                 .TransitionTo(MailSent)
         );
@@ -92,9 +89,16 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
         During(MailSent,
             Ignore(OrderProcessed),
             When(OrderMailSent)
-                .Then(context => logger.LogInformation("CorrelationId: {CandidateDataDeletedStage} - OrderId: {OrderId} - CurrentState: {CurrentState}",
-                    context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState))
+                .Then(context =>
+                {
+                    context.Saga.FinishedAt = DateTime.UtcNow;
+                    context.Saga.UpdatedDate = DateTime.UtcNow;
+                    logger.LogInformation("CorrelationId: {CandidateDataDeletedStage} - OrderId: {OrderId} - CurrentState: {CurrentState}",
+                        context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState);
+                })
                 .Finalize()
+                .Then(context => logger.LogInformation("[DONE] CorrelationId: {CandidateDataDeletedStage} - OrderId: {OrderId} - CurrentState: {CurrentState}",
+                    context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState))
         );
 
         During(Final,

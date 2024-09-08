@@ -21,7 +21,7 @@ public sealed class OnOrderSubmittedConsumer : IConsumer<IOrderSubmitted>
     {
         Console.WriteLine($"Processing OrderId {context.Message.OrderId}");
         await Task.Delay(TimeSpan.FromSeconds(10));
-        Console.WriteLine($"OrderId {context.Message.OrderId} Submitted");
+        Console.WriteLine($"OrderId {context.Message.OrderId} Processed");
 
         await _publishEndpoint.Publish<IOrderProcessed>(new OrderProcessed
         {
