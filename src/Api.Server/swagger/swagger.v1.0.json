@@ -128,6 +128,29 @@
           }
         }
       }
+    },
+    "/api/Languages/PublishMultiMessages": {
+      "post": {
+        "tags": [
+          "Languages"
+        ],
+        "operationId": "Languages.PublishMultiMessages",
+        "parameters": [
+          {
+            "name": "nbOfMessage",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {

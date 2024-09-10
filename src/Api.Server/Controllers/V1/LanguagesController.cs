@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Asp.Versioning;
@@ -7,7 +8,9 @@ using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyWebApi.Api.Server.Models.Languages;
+using MyWebApi.Application.Abstractions;
 using MyWebApi.Application.Languages.Queries;
 using MyWebApi.Domain.Common;
 using MyWebApi.Domain.Constants;
@@ -23,12 +26,15 @@ namespace MyWebApi.Api.Server.Controllers.V1
     {
         private readonly IMediator _mediator;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IMonitoringDbContext _dbContext;
 
         public LanguagesController(IMediator mediator,
-            IPublishEndpoint publishEndpoint)
+            IPublishEndpoint publishEndpoint,
+            IMonitoringDbContext dbContext)
         {
             _mediator = mediator;
             _publishEndpoint = publishEndpoint;
+            _dbContext = dbContext;
         }
 
         [HttpGet(Name = MyConstants.PrefixController + nameof(GetLanguages))]
@@ -60,6 +66,26 @@ namespace MyWebApi.Api.Server.Controllers.V1
         public async Task<IActionResult> PublishMessage(int orderId, CancellationToken cancellationToken)
         {
             await _publishEndpoint.Publish<IOrderSubmitted>(new OrderSubmitted() { OrderId = orderId }, cancellationToken);
+            return Ok();
+        }
+
+        [HttpPost("PublishMultiMessages", Name = MyConstants.PrefixController + nameof(PublishMultiMessages))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> PublishMultiMessages(int nbOfMessage, CancellationToken cancellationToken)
+        {
+            int currentMaxOrderId = 0;
+            if (await _dbContext.Monitorings.AnyAsync(cancellationToken))
+            {
+                currentMaxOrderId = await _dbContext.Monitorings
+                    .MaxAsync(x => x.OrderId, cancellationToken);
+            }
+
+            for (int i = 1; i < nbOfMessage + 1; i++)
+            {
+                await _publishEndpoint.Publish<IOrderSubmitted>(new OrderSubmitted() { OrderId = currentMaxOrderId + i }, cancellationToken);
+                await Task.Delay(1000, cancellationToken);
+            }
+
             return Ok();
         }
     }
