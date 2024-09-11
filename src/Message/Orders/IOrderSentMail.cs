@@ -1,6 +1,6 @@
 namespace MyWebApi.Messages.Orders;
 
-public interface IOrderProcessed
+public interface IOrderSentMail
 {
     int OrderId { get; set; }
 }

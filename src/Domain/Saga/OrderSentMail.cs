@@ -2,7 +2,7 @@
 
 namespace MyWebApi.Domain.Saga;
 
-public class OrderProcessed : IOrderProcessed
+public class OrderSentMail : IOrderSentMail
 {
     public int OrderId { get; set; }
 }

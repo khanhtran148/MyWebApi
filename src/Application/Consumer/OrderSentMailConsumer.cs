@@ -8,16 +8,16 @@ using MyWebApi.Messages.Orders;
 namespace MyWebApi.Application.Consumer;
 
 [ExcludeFromCodeCoverage]
-public sealed class OnOrderProcessedConsumer : IConsumer<IOrderProcessed>
+public sealed class OrderSentMailConsumer : IConsumer<IOrderSentMail>
 {
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public OnOrderProcessedConsumer(IPublishEndpoint publishEndpoint)
+    public OrderSentMailConsumer(IPublishEndpoint publishEndpoint)
     {
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task Consume(ConsumeContext<IOrderProcessed> context)
+    public async Task Consume(ConsumeContext<IOrderSentMail> context)
     {
         Console.WriteLine($"Sending mail for OrderId {context.Message.OrderId}");
         await Task.Delay(TimeSpan.FromSeconds(5));

@@ -65,7 +65,7 @@ namespace MyWebApi.Api.Server.Controllers.V1
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> PublishMessage(int orderId, CancellationToken cancellationToken)
         {
-            await _publishEndpoint.Publish<IOrderSubmitted>(new OrderSubmitted() { OrderId = orderId }, cancellationToken);
+            await _publishEndpoint.Publish<IOrderProcess>(new OrderProcess() { OrderId = orderId }, cancellationToken);
             return Ok();
         }
 
@@ -82,7 +82,7 @@ namespace MyWebApi.Api.Server.Controllers.V1
 
             for (int i = 1; i < nbOfMessage + 1; i++)
             {
-                await _publishEndpoint.Publish<IOrderSubmitted>(new OrderSubmitted() { OrderId = currentMaxOrderId + i }, cancellationToken);
+                await _publishEndpoint.Publish<IOrderProcess>(new OrderProcess() { OrderId = currentMaxOrderId + i }, cancellationToken);
                 await Task.Delay(1000, cancellationToken);
             }
 

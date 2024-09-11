@@ -13,9 +13,9 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
     public State MailSent { get; private set; }
 
     // define event
-    public Event<IOrderSubmitted> OrderSubmitted { get; private set; }
-    public Event<IOrderProcessed> OrderProcessed { get; private set; }
-    public Event<IMailSent> OrderMailSent { get; private set; }
+    public Event<IOrderProcess> OrderProcess { get; private set; }
+    public Event<IOrderSentMail> OrderSentMail { get; private set; }
+    public Event<IMailSent> OrderMailAlreadySent { get; private set; }
 
     public MyStateMachine(ILogger<MyStateMachine> logger)
     {
@@ -25,7 +25,7 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
         InstanceState(x => x.CurrentState, Processed, MailSent);
 
         Initially(
-            When(OrderSubmitted)
+            When(OrderProcess)
                 .Then(context =>
                 {
                     context.Saga.OrderId = context.Message.OrderId;
@@ -35,13 +35,13 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
                     logger.LogInformation("MyStateMachine => OrderSubmitted");
                 })
                 .TransitionTo(Initial),
-            When(OrderProcessed)
+            When(OrderSentMail)
                 .Then(context =>
                 {
                     context.Saga.OrderId = context.Message.OrderId;
                     context.Saga.UpdatedDate = DateTime.UtcNow;
                 }),
-            When(OrderMailSent)
+            When(OrderMailAlreadySent)
                 .Then(context =>
                 {
                     context.Saga.OrderId = context.Message.OrderId;
@@ -49,7 +49,7 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
                 })
         );
 
-        Event(() => OrderSubmitted, x =>
+        Event(() => OrderProcess, x =>
         {
             x.CorrelateBy((instant, context) => instant.OrderId == context.Message.OrderId);
             x.SelectId(e => NewId.NextGuid());
@@ -64,28 +64,28 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
             });
         });
 
-        Event(() => OrderProcessed, x => { x.CorrelateBy((instant, context) => instant.OrderId == context.Message.OrderId); });
+        Event(() => OrderSentMail, x => { x.CorrelateBy((instant, context) => instant.OrderId == context.Message.OrderId); });
 
-        Event(() => OrderMailSent, x => { x.CorrelateBy((instant, context) => instant.OrderId == context.Message.OrderId); });
+        Event(() => OrderMailAlreadySent, x => { x.CorrelateBy((instant, context) => instant.OrderId == context.Message.OrderId); });
 
         During(Initial,
-            Ignore(OrderMailSent),
-            When(OrderProcessed)
+            Ignore(OrderMailAlreadySent),
+            When(OrderSentMail)
                 .Then(context => logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
                     context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState))
                 .TransitionTo(Processed)
         );
 
         During(Processed,
-            When(OrderMailSent)
+            When(OrderMailAlreadySent)
                 .Then(context => logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
                     context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState))
                 .TransitionTo(MailSent)
         );
 
         During(MailSent,
-            Ignore(OrderProcessed),
-            Ignore(OrderMailSent),
+            Ignore(OrderSentMail),
+            Ignore(OrderMailAlreadySent),
             When(MailSent.Enter)
                 .Then(context => logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
                     context.Saga.CorrelationId, context.Saga.OrderId, context.Saga.CurrentState))
@@ -93,8 +93,8 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
         );
 
         During(Final,
-            Ignore(OrderProcessed),
-            Ignore(OrderMailSent),
+            Ignore(OrderSentMail),
+            Ignore(OrderMailAlreadySent),
             When(Final.Enter)
                 .Then(context => logger.LogInformation("[DONE] CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
                     context.Saga.CorrelationId, context.Saga.OrderId, context.Saga.CurrentState))

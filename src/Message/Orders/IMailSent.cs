@@ -1,4 +1,4 @@
-namespace MyWebApi.Messages.Orders;
+﻿namespace MyWebApi.Messages.Orders;
 
 public interface IMailSent
 {
