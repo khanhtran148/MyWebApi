@@ -23,6 +23,6 @@ public sealed class OrderProcessConsumer : IConsumer<IOrderProcess>
         await Task.Delay(TimeSpan.FromSeconds(5));
         Console.WriteLine($"OrderId {context.Message.OrderId} processed");
 
-        await _publishEndpoint.Publish(new OrderProcessed() { OrderId = context.Message.OrderId });
+        await _publishEndpoint.Publish<IOrderProcessed>(new OrderProcessed() { OrderId = context.Message.OrderId });
     }
 }

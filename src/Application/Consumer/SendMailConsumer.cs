@@ -23,6 +23,6 @@ public sealed class SendMailConsumer : IConsumer<ISendMail>
         await Task.Delay(TimeSpan.FromSeconds(10));
         Console.WriteLine($"OrderId {context.Message.OrderId} mail sent");
 
-        await _publishEndpoint.Publish(new MailSent() { OrderId = context.Message.OrderId });
+        await _publishEndpoint.Publish<IMailSent>(new MailSent() { OrderId = context.Message.OrderId });
     }
 }

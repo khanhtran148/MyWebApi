@@ -37,7 +37,7 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
                     logger.LogInformation("MyStateMachine => OrderSubmitted");
                 })
                 .TransitionTo(Submitted)
-                .Publish(ctx => new OrderProcess() { OrderId = ctx.Message.OrderId }),
+                .Publish(context => context.Init<IOrderProcess>(new OrderProcess{ OrderId = context.Message.OrderId })),
             When(OrderProcessed)
                 .Then(context =>
                 {
@@ -77,7 +77,7 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
                 .Then(context => logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
                     context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState))
                 .TransitionTo(Processed)
-                .Publish(ctx => new SendMail() { OrderId = ctx.Message.OrderId })
+                .Publish(context => context.Init<ISendMail>(new SendMail{ OrderId = context.Message.OrderId }))
         );
 
         During(Processed,
