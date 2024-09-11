@@ -72,22 +72,8 @@ namespace MyWebApi.WorkerService
                         r.ExistingDbContext<MonitoringDbContext>();
                     })
                     ;
-                x.AddConsumer<OnOrderSubmittedConsumer>();
-                x.AddConsumer<OnOrderProcessedConsumer>();
-                // x.UsingRabbitMq((context, cfg) =>
-                // {
-                //     cfg.Host(options.Host, options.VirtualHost, config =>
-                //     {
-                //         config.Username(options.User);
-                //         config.Password(options.Password);
-                //     });
-                //
-                //     cfg.ReceiveEndpoint($"on-job-created-{nameof(OnJobCreatedConsumer)}", e =>
-                //     {
-                //         e.ConfigureConsumer<OnJobCreatedConsumer>(context);
-                //         e.Bind<OnJobCreatedConsumer>();
-                //     });
-                // });
+                x.AddConsumer<SendMailConsumer>();
+                x.AddConsumer<OrderProcessConsumer>();
 
                 x.UsingActiveMq((context, cfg) =>
                 {
@@ -97,16 +83,16 @@ namespace MyWebApi.WorkerService
                         config.Password(options.Password);
                     });
 
-                    cfg.ReceiveEndpoint($"on-order-submitted-{nameof(OnOrderSubmittedConsumer)}", e =>
+                    cfg.ReceiveEndpoint($"order-sent-mail-{nameof(SendMailConsumer)}", e =>
                     {
-                        e.ConfigureConsumer<OnOrderSubmittedConsumer>(context);
-                        e.Bind<OnOrderSubmittedConsumer>();
+                        e.ConfigureConsumer<SendMailConsumer>(context);
+                        e.Bind<SendMailConsumer>();
                     });
 
-                    cfg.ReceiveEndpoint($"on-order-processed-{nameof(OnOrderProcessedConsumer)}", e =>
+                    cfg.ReceiveEndpoint($"order-process-{nameof(OrderProcessConsumer)}", e =>
                     {
-                        e.ConfigureConsumer<OnOrderProcessedConsumer>(context);
-                        e.Bind<OnOrderProcessedConsumer>();
+                        e.ConfigureConsumer<OrderProcessConsumer>(context);
+                        e.Bind<OrderProcessConsumer>();
                     });
 
                     cfg.ConfigureEndpoints(context);

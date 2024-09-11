@@ -2,6 +2,7 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MyWebApi.Domain.Entities.Saga;
+using MyWebApi.Domain.Saga;
 using MyWebApi.Messages.Orders;
 
 namespace MyWebApi.Application.Saga;
@@ -35,7 +36,8 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
                     context.Saga.UpdatedDate = DateTime.UtcNow;
                     logger.LogInformation("MyStateMachine => OrderSubmitted");
                 })
-                .TransitionTo(Submitted),
+                .TransitionTo(Submitted)
+                .Publish(ctx => new OrderProcess() { OrderId = ctx.Message.OrderId }),
             When(OrderProcessed)
                 .Then(context =>
                 {
@@ -71,13 +73,11 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
 
         During(Submitted,
             Ignore(OrderMailSent),
-            When(OrderSubmitted)
-                .Then(context => logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
-                    context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState)),
             When(OrderProcessed)
                 .Then(context => logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
                     context.Saga.CorrelationId, context.Message.OrderId, context.Saga.CurrentState))
                 .TransitionTo(Processed)
+                .Publish(ctx => new SendMail() { OrderId = ctx.Message.OrderId })
         );
 
         During(Processed,
