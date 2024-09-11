@@ -9,8 +9,7 @@ namespace MyWebApi.Application.Saga;
 
 public class MyStateMachine : MassTransitStateMachine<Monitoring>
 {
-    // define the state machine
-    public State Submitted { get; private set; }
+    // define the state
     public State Processed { get; private set; }
     public State MailSent { get; private set; }
 
@@ -23,8 +22,8 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
     {
         logger.LogInformation("MyStateMachine => Initially");
 
-        // State data : 0 - None, 1 - Initial, 2 - Final, 3 - Submitted, 4 - Processed, 5 - MailSent
-        InstanceState(x => x.CurrentState, Submitted, Processed, MailSent);
+        // State data : 0 - None, 1 - Initial, 2 - Final, 3 - Processed, 4 - MailSent
+        InstanceState(x => x.CurrentState, Processed, MailSent);
 
         Initially(
             When(OrderSubmitted)
@@ -36,7 +35,7 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
                     context.Saga.UpdatedDate = DateTime.UtcNow;
                     logger.LogInformation("MyStateMachine => OrderSubmitted");
                 })
-                .TransitionTo(Submitted)
+                .TransitionTo(Initial)
                 .Then(context => context.Publish<IOrderProcess>(new OrderProcess{ OrderId = context.Message.OrderId })),
             When(OrderProcessed)
                 .Then(context =>
@@ -71,7 +70,7 @@ public class MyStateMachine : MassTransitStateMachine<Monitoring>
 
         Event(() => OrderMailSent, x => { x.CorrelateBy((instant, context) => instant.OrderId == context.Message.OrderId); });
 
-        During(Submitted,
+        During(Initial,
             Ignore(OrderMailSent),
             When(OrderProcessed)
                 .Then(context => logger.LogInformation("CorrelationId: {CorrelationId} - OrderId: {OrderId} - CurrentState: {CurrentState}",
